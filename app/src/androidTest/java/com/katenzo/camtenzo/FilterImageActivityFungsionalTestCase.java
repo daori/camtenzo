@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.ViewAsserts;
@@ -26,7 +25,8 @@ public class FilterImageActivityFungsionalTestCase extends ActivityInstrumentati
     private Button filterSephia;
     private Intent filterIntentImage;
     private Bitmap dummyImage;
-
+    private ImageView imageOverlay;
+    private Button filterOriginal;
 
     public FilterImageActivityFungsionalTestCase(String name) {
         super(FilterImageActivity.class);
@@ -38,20 +38,25 @@ public class FilterImageActivityFungsionalTestCase extends ActivityInstrumentati
     public void setUp() throws Exception {
         super.setUp();
 
-
         activity = getActivity();
         assertNotNull(activity);
 
         imageContainer = (ImageView) activity.findViewById(R.id.image_container);
-        Bitmap bMap = BitmapFactory.decodeFile(Uri.parse("android.resource://"+ getActivity().getPackageName() +"/raw/meme.jpg").toString());
+        Bitmap bMap = BitmapFactory.decodeFile(Uri.parse("android.resource://"+ getActivity().getPackageName() + "/drawable-hdpi/meme.jpg").toString());
         imageContainer.setImageBitmap(bMap);
         assertNotNull(imageContainer);
+
+        imageOverlay = (ImageView) activity.findViewById(R.id.imageViewOverlay);
+        assertNotNull(imageOverlay);
 
         filterGrayScale = (Button) activity.findViewById(R.id.filter_gray_scale);
         assertNotNull(filterGrayScale);
 
         filterSephia = (Button) activity.findViewById(R.id.filter_sephia);
         assertNotNull(filterSephia);
+
+        filterOriginal = (Button) activity.findViewById(R.id.filter_original);
+        assertNotNull(filterOriginal);
 
         buttonSend = (Button) activity.findViewById(R.id.button_send);
         assertNotNull(buttonSend);
@@ -72,8 +77,10 @@ public class FilterImageActivityFungsionalTestCase extends ActivityInstrumentati
         final View container = activity.getWindow().getDecorView();
 
         ViewAsserts.assertOnScreen(container, imageContainer);
+        ViewAsserts.assertOnScreen(container, imageOverlay);
         ViewAsserts.assertOnScreen(container, filterGrayScale);
         ViewAsserts.assertOnScreen(container, filterSephia);
+        ViewAsserts.assertOnScreen(container, filterOriginal);
         ViewAsserts.assertOnScreen(container, buttonSend);
     }
 

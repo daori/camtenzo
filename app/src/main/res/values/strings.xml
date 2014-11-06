@@ -8,5 +8,6 @@
     <string name="sephia">sephia</string>
     <string name="send">Send</string>
     <string name="title_activity_filter_image">FilterImageActivity</string>
+    <string name="original">Original</string>
 
 </resources>

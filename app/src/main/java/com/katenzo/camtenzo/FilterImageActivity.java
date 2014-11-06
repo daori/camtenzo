@@ -1,19 +1,27 @@
 package com.katenzo.camtenzo;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.effect.Effect;
-import android.media.effect.EffectContext;
-import android.media.effect.EffectFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
+import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import java.util.logging.Filter;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 
 public class FilterImageActivity extends Activity {
@@ -21,23 +29,25 @@ public class FilterImageActivity extends Activity {
     private ImageView image;
     private Button filterGrayscale;
     private Button filterSephia;
+    private Bitmap bitmapOri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filter_image);
 
-        final Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.raw.meme);
+        Uri imageOriginalUri = getOriginalImageFromIntent();
+        bitmapOri = getThumbnailImage(imageOriginalUri);
 
         image = (ImageView) findViewById(R.id.image_container);
-        image.setImageBitmap(bitmap);
+        image.setImageBitmap(bitmapOri);
 
         filterGrayscale = (Button) findViewById(R.id.filter_gray_scale);
 
         filterGrayscale.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                image.setImageBitmap(FilterImage.convertToGrayScale(bitmap));
+                image.setImageBitmap(FilterImage.convertToGrayScale(bitmapOri));
             }
         });
 
@@ -45,16 +55,35 @@ public class FilterImageActivity extends Activity {
         filterSephia.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                image.setImageBitmap(FilterImage.convertToSephia(bitmap,1,10,10,255));
+                image.setImageBitmap(FilterImage.convertToSephia(bitmapOri,1,10,10,255));
             }
         });
 
-
-
-
-
     }
 
+    private Uri getOriginalImageFromIntent() {
+        Intent intent = getIntent();
+        Uri imageName = intent.getData();
+        return imageName;
+    }
+
+    private Bitmap getThumbnailImage(Uri uriOriginal){
+        ParcelFileDescriptor parcelFileDescriptor;
+        try {
+            parcelFileDescriptor = getContentResolver().openFileDescriptor(uriOriginal, "r");
+            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+            Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+            parcelFileDescriptor.close();
+            return image;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
