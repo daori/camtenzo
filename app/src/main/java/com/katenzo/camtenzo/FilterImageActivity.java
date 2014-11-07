@@ -30,24 +30,26 @@ public class FilterImageActivity extends Activity {
     private Button filterGrayscale;
     private Button filterSephia;
     private Bitmap bitmapOri;
+    private Bitmap bitmapFiltered;
+    private Button filterReset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filter_image);
 
-        Uri imageOriginalUri = getOriginalImageFromIntent();
-        bitmapOri = getThumbnailImage(imageOriginalUri);
+        bitmapOri = getThumbnailImage(getOriginalImageFromIntent());
+        bitmapFiltered = bitmapOri;
 
         image = (ImageView) findViewById(R.id.image_container);
-        image.setImageBitmap(bitmapOri);
+        image.setImageBitmap(bitmapFiltered);
 
         filterGrayscale = (Button) findViewById(R.id.filter_gray_scale);
-
         filterGrayscale.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                image.setImageBitmap(FilterImage.convertToGrayScale(bitmapOri));
+                image.setImageBitmap(FilterImage.convertToGrayScale(bitmapFiltered));
+                Runtime.getRuntime().gc();
             }
         });
 
@@ -55,24 +57,36 @@ public class FilterImageActivity extends Activity {
         filterSephia.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                image.setImageBitmap(FilterImage.convertToSephia(bitmapOri,1,10,10,255));
+                image.setImageBitmap(FilterImage.convertToSephia(bitmapFiltered,1,10,10,255));
+                Runtime.getRuntime().gc();
+            }
+        });
+
+        filterReset = (Button) findViewById(R.id.filter_original);
+        filterReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                image.setImageBitmap(bitmapOri);
+                Runtime.getRuntime().gc();
             }
         });
 
     }
 
-    private Uri getOriginalImageFromIntent() {
+    protected Uri getOriginalImageFromIntent() {
         Intent intent = getIntent();
-        Uri imageName = intent.getData();
-        return imageName;
+        Uri imageUri = intent.getData();
+        return imageUri;
     }
 
-    private Bitmap getThumbnailImage(Uri uriOriginal){
+    protected Bitmap getThumbnailImage(Uri uriOriginal){
         ParcelFileDescriptor parcelFileDescriptor;
         try {
             parcelFileDescriptor = getContentResolver().openFileDescriptor(uriOriginal, "r");
             FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-            Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+            BitmapFactory.Options options=new BitmapFactory.Options();
+            options.inSampleSize = 8;
+            Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor,null, options);
             parcelFileDescriptor.close();
             return image;
 

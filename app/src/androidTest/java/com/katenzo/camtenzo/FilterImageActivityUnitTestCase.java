@@ -12,11 +12,12 @@ import android.widget.ImageView;
  */
 public class FilterImageActivityUnitTestCase extends ActivityUnitTestCase<FilterImageActivity> {
 
-    private static final String uriMessage = "wowz";
+    private Uri uriMessage = null;
 
     private Intent intent;
 
     private FilterImageActivity activity;
+    private ImageView imageContainer;
 
 
     public FilterImageActivityUnitTestCase(String name) {
@@ -28,11 +29,19 @@ public class FilterImageActivityUnitTestCase extends ActivityUnitTestCase<Filter
     public void setUp() throws Exception {
         super.setUp();
 
-        intent = new Intent();
-        intent.putExtra(CameraActivity.INTENT_NAME, uriMessage);
+        uriMessage = Uri.parse("android.resource://drawable-hdpi/meme.jpg");
 
-        startActivity(intent,null,null);
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.putExtra(CameraActivity.INTENT_NAME, uriMessage);
+        intent.setDataAndType(uriMessage, "image/*");
+
+        startActivity(intent, null, null);
         activity = getActivity();
+
+        imageContainer = (ImageView) activity.findViewById(R.id.image_container);
+        imageContainer.setImageBitmap(activity.getThumbnailImage(uriMessage));
+        assertNotNull(imageContainer);
 
     }
 
@@ -41,7 +50,7 @@ public class FilterImageActivityUnitTestCase extends ActivityUnitTestCase<Filter
         Intent intent = activity.getIntent();
         assertNotNull("Intent was NULL", intent);
 
-        String message = intent.getExtras().getString(CameraActivity.INTENT_NAME);
+        Uri message = intent.getData();
         assertEquals("Incorrect uri passed via Intent",uriMessage, message);
     }
 
@@ -51,7 +60,8 @@ public class FilterImageActivityUnitTestCase extends ActivityUnitTestCase<Filter
         assertNotNull("Image View Cannot null", imageView);
 
         Intent intent = activity.getIntent();
-        final Uri expected = Uri.parse(intent.getExtras().getString(CameraActivity.INTENT_NAME));
-        assertEquals("Image Uri Not Same", expected, Uri.parse(uriMessage));
+        final Uri expected = intent.getData();
+        assertEquals("Image Uri Not Same", expected, uriMessage);
     }
+
 }
