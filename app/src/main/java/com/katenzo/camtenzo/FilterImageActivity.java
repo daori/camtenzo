@@ -49,7 +49,9 @@ public class FilterImageActivity extends Activity {
             @Override
             public void onClick(View v) {
                 image.setImageBitmap(FilterImage.convertToGrayScale(bitmapFiltered));
-                Runtime.getRuntime().gc();
+                filterGrayscale.setPressed(true);
+                filterReset.setPressed(false);
+                filterSephia.setPressed(false);
             }
         });
 
@@ -58,7 +60,9 @@ public class FilterImageActivity extends Activity {
             @Override
             public void onClick(View v) {
                 image.setImageBitmap(FilterImage.convertToSephia(bitmapFiltered,1,10,10,255));
-                Runtime.getRuntime().gc();
+                filterSephia.setPressed(true);
+                filterGrayscale.setPressed(false);
+                filterReset.setPressed(false);
             }
         });
 
@@ -67,7 +71,9 @@ public class FilterImageActivity extends Activity {
             @Override
             public void onClick(View v) {
                 image.setImageBitmap(bitmapOri);
-                Runtime.getRuntime().gc();
+                filterReset.setPressed(true);
+                filterGrayscale.setPressed(false);
+                filterSephia.setPressed(false);
             }
         });
 
@@ -85,7 +91,7 @@ public class FilterImageActivity extends Activity {
             parcelFileDescriptor = getContentResolver().openFileDescriptor(uriOriginal, "r");
             FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
             BitmapFactory.Options options=new BitmapFactory.Options();
-            options.inSampleSize = 8;
+            options.inSampleSize = 2;
             Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor,null, options);
             parcelFileDescriptor.close();
             return image;
