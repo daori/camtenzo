@@ -18,15 +18,13 @@
             android:id="@+id/image_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_launcher"
             />
         <ImageView
             android:id="@+id/imageViewOverlay"
             android:scaleType="fitXY"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/overlay"/>
-
+            android:src="@drawable/overlay_transparent"/>
         </FrameLayout>
 
 
@@ -36,27 +34,29 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <Button
+            android:id="@+id/filter_original"
+            style="@style/filterButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center|left"
+            android:text="@string/original"/>
+        <Button
             android:id="@+id/filter_gray_scale"
             android:layout_gravity="center"
             android:gravity="center|left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/black_n_white"/>
+            android:text="@string/black_n_white"
+            style="@style/filterButton"/>
         <Button
             android:id="@+id/filter_sephia"
             android:layout_gravity="center"
             android:gravity="center|left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/sephia"/>
-
-        <Button
-            android:id="@+id/filter_original"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center|left"
-            android:text="@string/original"/>
+            android:text="@string/sephia"
+            style="@style/filterButton"/>
 
     </LinearLayout>
 

@@ -8,8 +8,10 @@ import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.test.ViewAsserts;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -30,7 +32,7 @@ public class FilterImageActivityFungsionalTestCase extends ActivityInstrumentati
     private Button filterOriginal;
     private Uri uriMessage;
     private Bitmap bitmapOriginal;
-    private Bitmap bitmapFiltered;
+    private ImageView imageExported;
 
     public FilterImageActivityFungsionalTestCase(String name) {
         super(FilterImageActivity.class);
@@ -44,67 +46,67 @@ public class FilterImageActivityFungsionalTestCase extends ActivityInstrumentati
     public void setUp() throws Exception {
         super.setUp();
         setActivityInitialTouchMode(false);
-        uriMessage = Uri.parse("android.resource://drawable-hdpi/meme.jpg");
+        //Dummy File di ambil dari storage hasil foto
+        uriMessage = Uri.parse("file:///storage/emulated/0/camtenzo/1415674970354.jpg");
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
         intent.putExtra(CameraActivity.INTENT_NAME, uriMessage);
         intent.setDataAndType(uriMessage, "image/*");
         setActivityIntent(intent);
         activity = getActivity();
-        assertNotNull(activity);
+
+
+        bitmapOriginal = activity.getThumbnailImage(activity.getOriginalImageFromIntent());
 
         imageContainer = (ImageView) activity.findViewById(R.id.image_container);
-        assertNotNull(imageContainer);
-
         imageOverlay = (ImageView) activity.findViewById(R.id.imageViewOverlay);
-        assertNotNull(imageOverlay);
-
         filterGrayScale = (Button) activity.findViewById(R.id.filter_gray_scale);
-        assertNotNull(filterGrayScale);
-
         filterSephia = (Button) activity.findViewById(R.id.filter_sephia);
-        assertNotNull(filterSephia);
-
         filterOriginal = (Button) activity.findViewById(R.id.filter_original);
-        assertNotNull(filterOriginal);
-
         buttonSend = (Button) activity.findViewById(R.id.button_send);
-        assertNotNull(buttonSend);
-
-        //dummyImage =((BitmapDrawable)imageContainer.getDrawable()).getBitmap();
-
 //        filterGrayScale.setOnClickListener(new View.OnClickListener() {
-//
 //            @Override
 //            public void onClick(View v) {
-//                FilterImage.convertToGrayScale(dummyImage);
+//                FilterImage.convertToGrayScale(activity.getThumbnailImage(uriMessage));
+//                imageContainer.setImageBitmap(FilterImage.convertToGrayScale(bitmapOriginal));
+//                filterGrayScale.setPressed(true);
+//                filterSephia.setPressed(false);
+//                filterOriginal.setPressed(false);
 //            }
 //        });
+    }
+
+    @SmallTest
+    public void testPrecondition() throws Exception {
+        /* Image yang di ambil dari File (media storage) */
+        assertNotNull(activity);
+        assertNotNull(bitmapOriginal);
+        assertNotNull(imageContainer);
+        assertNotNull(imageContainer);
+        assertNotNull(imageOverlay);
+        assertNotNull(filterGrayScale);
+        assertNotNull(filterSephia);
+        assertNotNull(filterOriginal);
+        assertNotNull(buttonSend);
     }
 
     @UiThreadTest
     public void testImageContainerShouldSetUsingIntentFromActivity() throws Exception {
         imageContainer.setImageBitmap(bitmapOriginal);
-        assertNotNull(imageContainer.getDrawable());
+        assertEquals(bitmapOriginal, ((BitmapDrawable) imageContainer.getDrawable()).getBitmap());
     }
 
     @UiThreadTest
     public void testButtonFilterGrayscaleClickShouldChangeBitmapOriginal() throws Exception {
         bitmapOriginal = activity.getThumbnailImage(activity.getOriginalImageFromIntent());
-        bitmapFiltered = bitmapOriginal;
-        filterGrayScale.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                imageContainer.setImageBitmap(FilterImage.convertToGrayScale(bitmapFiltered));
-            }
-        });
-
-        assertFalse("Bitmap not change to grayscale", ((BitmapDrawable)imageContainer.getDrawable()).getBitmap().sameAs(bitmapOriginal));
+        filterGrayScale.performClick();
+        assertFalse("Bitmap not change to grayscale", ((BitmapDrawable) imageContainer.getDrawable()).getBitmap().sameAs(bitmapOriginal));
     }
 
-    private void initializeBitmap(){
+    @UiThreadTest
+    public void testImageShouldNotEmptyFromIntent() throws Exception{
         bitmapOriginal = activity.getThumbnailImage(activity.getOriginalImageFromIntent());
-        bitmapFiltered = bitmapOriginal;
+        assertNotNull(bitmapOriginal);
     }
 
     @SmallTest
@@ -123,10 +125,39 @@ public class FilterImageActivityFungsionalTestCase extends ActivityInstrumentati
     public void testJustification() throws Exception {
         final int expectedButtonFilter = Gravity.LEFT|Gravity.CENTER_VERTICAL;
         final int expectedButtonSend = Gravity.RIGHT|Gravity.CENTER_VERTICAL;
+        final int expectedButtonReset = Gravity.LEFT|Gravity.CENTER;
 
         assertEquals(expectedButtonFilter, filterGrayScale.getGravity());
         assertEquals(expectedButtonFilter, filterSephia.getGravity());
+        assertEquals(expectedButtonReset, filterOriginal.getGravity());
         assertEquals(expectedButtonSend, buttonSend.getGravity());
     }
+
+    @UiThreadTest
+    public void testFilterGrayscaleOnTouchShouldChangeState() throws Exception {
+        final boolean expected = true;
+        filterGrayScale.performClick();
+        assertEquals(expected, filterGrayScale.isPressed());
+    }
+
+    @UiThreadTest
+    public void testFilterSephiaOnTouchShouldChangeState() throws Exception{
+        final boolean expected = true;
+        filterSephia.performClick();
+        assertEquals(expected, filterSephia.isPressed());
+    }
+
+    @UiThreadTest
+    public void testFilterOriginalOnTouchShouldChangeState() throws Exception{
+        final boolean expected = true;
+        filterOriginal.performClick();
+        assertEquals(expected, filterOriginal.isPressed());
+    }
+
+    @MediumTest
+    public void testButtonSendShouldPostToUrlUsingHttpPost() throws Exception{
+        fail("Not Implement yet");
+    }
+
 
 }

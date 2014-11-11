@@ -89,4 +89,10 @@ public class FilterImage {
         // return final image
         return bmOut;
     }
+
+    public static Bitmap renderWithOverlayImage(Bitmap bitmap) {
+
+        return bitmap;
+    }
+
 }
